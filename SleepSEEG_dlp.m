@@ -143,8 +143,8 @@ for nf=1:length(file)
     channel_info.physmax =header_ini.physmax;
     channel_info.digimin =header_ini.digimin;
     channel_info.digimax=header_ini.digimax;
-    channel_info.samples_per_record=header_ini.nSamples;
-    samp=channel_info.samples_per_record(1);
+    channel_info.samples_per_record=header_ini.Fs;
+    samp=header_ini.Fs;
     fs=round(header_ini.Fs);
     a=(channel_info.physmax-channel_info.physmin)./(channel_info.digimax-channel_info.digimin);
     b=(channel_info.physmin-a.*channel_info.digimin)';
@@ -174,20 +174,18 @@ for nf=1:length(file)
     disp('Computing features...');
 
     % read buffer
-    buffer= ceil(15*fs);
+    buffer=ceil((sta+1.25*fs)/samp)*header_ini.Fs;
     [~, record] = read_laydat_data(FileName, 1, buffer);
     X = (record(mtg_idxs(:,1),:)-record(mtg_idxs(:,2),:))';
 
     X=X(sta-1.25*fs+1:end,:);
     Xb = X;
 
-    epoch_dur_samples = 30*fs;
     start_sample = 1+buffer;
-    end_sample = start_sample+epoch_dur_samples-1;
-    
     % Compute features
     for ii=1:Ne
-        [~, record] = read_laydat_data(FileName, start_sample, epoch_dur_samples);
+        dur=ceil((fs*30-size(Xb,1)+2.5*fs)/samp)*header_ini.Fs;
+        [~, record] = read_laydat_data(FileName, start_sample, dur);
         X = (record(mtg_idxs(:,1),:)-record(mtg_idxs(:,2),:))';   
 
         X=cat(1,Xb,X);
@@ -205,9 +203,8 @@ for nf=1:length(file)
         night(ne)=nf<=nnf;
         SleepStage(ne,5)=sta+30*fs*(ii-1);
 
-        start_sample = start_sample+epoch_dur_samples;
-        end_sample = start_sample+epoch_dur_samples-1;
-        if start_sample>header_ini.nSamples || end_sample>header_ini.nSamples
+        start_sample = start_sample+dur;
+        if start_sample>header_ini.nSamples || start_sample+dur>header_ini.nSamples
             break
         end
 

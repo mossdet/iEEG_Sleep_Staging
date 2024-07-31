@@ -14,8 +14,9 @@ function [hdr, record] = read_laydat_data(lay_file_name, start_sample, samples_t
         precision = 'int32';
         precision_num = 4;
     else
-        precision = 'short';
-        error("Precision unknown")
+        precision = 'int16';
+        precision_num = 2;
+        %error("Precision unknown")
     end
     
     status = fseek(dat_file_ID, hdr.nChans*precision_num*(start_sample-1), 'bof');

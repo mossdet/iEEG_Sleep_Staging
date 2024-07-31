@@ -8,7 +8,8 @@ function ft_hdr = read_laydat_header(lay_file_name)
     %-------------------
     %     lay file
     %-------------------
-    
+    [lay_file_dir, ~, ~] = fileparts(lay_file_name);
+
     %use inifile to read .lay file as .ini file
     data = laydat_get_info(lay_file_name);
     %change "empty" cells to '...'
@@ -47,8 +48,13 @@ function ft_hdr = read_laydat_header(lay_file_name)
     else
         precision_num_bits = 16;
     end
-    file_tot_bits = (str2double(rawhdr.archive.datafilesize)*8);
-    nSamples = file_tot_bits / precision_num_bits / str2double(rawhdr.fileinfo.waveformcount);
+    s = dir(strcat(lay_file_dir, '\', rawhdr.fileinfo.file));
+    filesize_bits = s.bytes*8;
+    if isfield(rawhdr, 'archive')
+        file_tot_bits = (str2double(rawhdr.archive.datafilesize)*8);
+        assert(filesize_bits==file_tot_bits, "Could not determine number of samples")
+    end
+    nSamples = filesize_bits / precision_num_bits / str2double(rawhdr.fileinfo.waveformcount);
     
     %montage
     montageArray = data(find(strcmp('montage',data(:,1))),:);
@@ -169,7 +175,15 @@ function ft_hdr = read_laydat_header(lay_file_name)
     ft_hdr.digimin = repmat(-2^(precision_num_bits-1), size(ft_hdr.label,1), size(ft_hdr.label,2));
     ft_hdr.digimax = repmat(2^(precision_num_bits-1), size(ft_hdr.label,1), size(ft_hdr.label,2));
 
-    study_start_datetime_str = strcat(rawhdr.archive.studydate, " 0:0:0");
+    % Archived files can be an extract of another file and thus have a
+    % separate studydate field that could be different to the testdate from
+    % the original file
+    if isfield(rawhdr, 'archive')
+        study_start_datetime_str = strcat(rawhdr.archive.studydate, " 0:0:0");
+    else
+        study_start_datetime_str = strcat(rawhdr.patient.testdate, " 0:0:0");
+    end
+
     study_start_datetime = datetime(datevec(study_start_datetime_str, 'yyyy.mm.dd HH:MM:SS')) +seconds(round(rawhdr.sampletimes{1, 1}.time));
     ft_hdr.study_starttime = datevec(study_start_datetime);
 
