@@ -186,7 +186,7 @@ for nf=1:length(file)
     for ii=1:Ne
         dur=ceil((fs*30-size(Xb,1)+2.5*fs)/samp)*header_ini.Fs;
         [~, record] = read_laydat_data(FileName, start_sample, dur);
-        X = (record(mtg_idxs(:,1),:)-record(mtg_idxs(:,2),:))';   
+        X = -1*(record(mtg_idxs(:,1),:)-record(mtg_idxs(:,2),:))';   
 
         X=cat(1,Xb,X);
         Xb=X(30*fs+1:end,:);
