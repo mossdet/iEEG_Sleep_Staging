@@ -24,5 +24,5 @@ function [hdr, record] = read_laydat_data(lay_file_name, start_sample, samples_t
     fclose(dat_file_ID);
     
     record = reshape(record_bytes, [hdr.nChans, samples_to_read]);
-    record = record * hdr.calibration * -1;
+    record = record * hdr.calibration;
 end
