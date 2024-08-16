@@ -106,23 +106,37 @@ for ii=1:Nch
 end
 eles=unique(ele,'stable');
 % Create bipolars
-MM=zeros(Nch); nc=0; ChL=cell(Nch,1);
+nc=0; ChL=cell(Nch,1);
 for ii=1:length(eles)
     for jj=2:nmax
         k=find(strcmp(eles{ii},ele)&num==jj-1,1);
         ke=find(strcmp(eles{ii},ele)&num==jj,1);
         if ~isempty(k)&&~isempty(ke)
-            nc=nc+1; MM(nc,ke)=-1; MM(nc,k)=1; 
+            nc=nc+1;
             ChL{nc}=[eles{ii} num2str(jj-1) '-' eles{ii} num2str(jj)];
         end
     end
 end
-ChL=ChL(1:nc); MM=MM(1:nc,:);
+ChL=ChL(1:nc);
 [Channels,l]=listdlg('ListString', ChL,'PromptString','Select channels');
 if l==0; return;  end
 
+% Strip the zeros between teh chanel label and teh channel number
+ref_ch_lbls = regexpi(header_ini.label, '[a-z]*[a-z]', 'match');
+ref_ch_nrs = regexpi(header_ini.label, '[0-9]*[0-9]', 'match');
+midzero_stripped_ch_names = cell(length(ref_ch_lbls),1);
+for chidx = 1:length(ref_ch_lbls)
+    mzstrp_ch_name = ref_ch_lbls{chidx};
+    if ~isempty(ref_ch_nrs{chidx})
+        mzstrp_ch_name = strcat(ref_ch_lbls{chidx}, num2str(str2double(ref_ch_nrs{chidx}{1})));
+    end
+    mzstrp_ch_name = mzstrp_ch_name {1};
+    midzero_stripped_ch_names{chidx} = mzstrp_ch_name;
+end
+
 selected_mtg_ls = split(ChL(Channels), '-');
-mtg_idxs = cell2mat(cellfun(@(c) find(strcmp(header_ini.label, c)), selected_mtg_ls, 'UniformOutput', false));
+
+mtg_idxs = cell2mat(cellfun(@(c) find(strcmpi(midzero_stripped_ch_names, c)), selected_mtg_ls, 'UniformOutput', false));
 
 Nch=nnz(Channels);
 Nfeat=24;    
@@ -185,6 +199,8 @@ for nf=1:length(file)
     % Compute features
     for ii=1:Ne
         dur=ceil((fs*30-size(Xb,1)+2.5*fs)/samp)*header_ini.Fs;
+        %assert(start_sample<header_ini.nSamples && start_sample+dur<=header_ini.nSamples, "Epoch Samples are out of EEG range")
+
         [~, record] = read_laydat_data(FileName, start_sample, dur);
         X = (record(mtg_idxs(:,1),:)-record(mtg_idxs(:,2),:))';   
 
@@ -204,12 +220,13 @@ for nf=1:length(file)
         SleepStage(ne,5)=sta+30*fs*(ii-1);
 
         start_sample = start_sample+dur;
-        if start_sample>header_ini.nSamples || start_sample+dur>header_ini.nSamples
-            break
-        end
 
-        disp(Ne-ii);
+        if length(file)==1
+            disp(Ne-ii);
+        end
     end
+
+    disp(strcat('Progress:', num2str(nf/length(file)*100),'%'))
 end
 feature=feature(:,:,1:ne);
 night=night(1:ne);

@@ -236,9 +236,13 @@ for nf=1:length(file)
         end
         night(ne)=nf<=nnf;
         SleepStage(ne,5)=sta+30*fs*(ii-1);
-        disp(Ne-ii);
+
+        if length(file)==1
+            disp(Ne-ii);
+        end
     end
     fclose(fp);
+    disp(strcat('Progress:', num2str(nf/length(file)*100),'%'))
 end
 feature=feature(:,:,1:ne);
 night=night(1:ne);

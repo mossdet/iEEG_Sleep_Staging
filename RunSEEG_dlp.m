@@ -6,14 +6,36 @@ addpath(genpath(workspacePath));
 
 fprintf('workspacePath: %s \n', workspacePath);
 
-files_list = {'D:\Persyst\Persyst_EEGs_24h_Laydat\Patient_1.lay'};
+%files_list = {'D:\Persyst\Persyst_EEGs_24h_Laydat\Patient_1.lay'};
 files_list = get_files_list_fr253();
+files_list = {'D:\FrLayDatMergedByDay\FR_1096\1096_DEMO_DAY4_FFT_ONLY\1096_day21.lay'}
+
+files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-19_25301102.lay'};
+files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-20_25301102.lay'};
+files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-21_25301102.lay'};
+files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-22_25301102.lay'};
+files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-23_25301102.lay'};
+
+pat_name = 'FR253_2004-03-23_25301102';
+
 extra_files = 0;
 
 [Summary,SleepStage]=SleepSEEG_dlp(files_list,extra_files);
 
+stages_datetimes = datetime(SleepStage(:,2), 'ConvertFrom', 'datenum', 'Format','MM-dd-yy HH:mm:ss');
+staging_results_cell = cat(2, cellstr(stages_datetimes), num2cell(SleepStage(:,3)));
+staging_results_table = cell2table(staging_results_cell, "VariableNames",["DateTime" "SleepStage"]);
+
+time_now_str = cellstr(datetime('now','TimeZone','local','Format','dd-MM-yyyy HH:mm:ss'));
+time_now_str = strrep(time_now_str, '-', '_'); time_now_str = strrep(time_now_str, ':', '_'); time_now_str = strrep(time_now_str, ' ', '__'); time_now_str = time_now_str{1};
+
+
+staging_csv_fn = strcat('Output\', pat_name, '_', 'MNI_ieegSleepStages_', time_now_str, '.csv');
+delete(staging_csv_fn);
+writetable(staging_results_table, staging_csv_fn,'Delimiter',',');
+
 function files_list = get_files_list_fr253()
-    data_path = "G:/FrLayDatOneHrMax/pat_FR_253/";
+    data_path = "D:/FrLayDatOneHrMax/pat_FR_253/";
     files_list = {...
         "2004-03-26_25301102_0199.lay";...
         "2004-03-18_25301102_0000.lay";...
