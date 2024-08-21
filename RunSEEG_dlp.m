@@ -10,13 +10,13 @@ fprintf('workspacePath: %s \n', workspacePath);
 files_list = get_files_list_fr253();
 files_list = {'D:\FrLayDatMergedByDay\FR_1096\1096_DEMO_DAY4_FFT_ONLY\1096_day21.lay'}
 
-files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-19_25301102.lay'};
-files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-20_25301102.lay'};
-files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-21_25301102.lay'};
-files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-22_25301102.lay'};
-files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-23_25301102.lay'};
+% files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-19_25301102.lay'};
+% files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-20_25301102.lay'};
+% files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-21_25301102.lay'};
+% files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-22_25301102.lay'};
+% files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-23_25301102.lay'};
 
-pat_name = 'FR253_2004-03-23_25301102';
+pat_name = 'FR1096_day21_EEA';
 
 extra_files = 0;
 
