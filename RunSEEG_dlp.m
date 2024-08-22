@@ -34,6 +34,20 @@ staging_csv_fn = strcat('Output\', pat_name, '_', 'MNI_ieegSleepStages_', time_n
 delete(staging_csv_fn);
 writetable(staging_results_table, staging_csv_fn,'Delimiter',',');
 
+function persyst_sleep_stages = stages_convert_mni2persyst(SleepStage)
+    persyst_sleep_stages = zeros(size(SleepStage(:,3)));
+    
+    %(1 to 5, Stages R, w, N1, N2, N3)
+
+    % MNI REM(1), convert to Persyst REM(1)
+    % MNI Wakefulness(2), convert to Persyst Wakefulness(2)
+    % MNI N1(3), convert to Persyst N1(3)
+    % MNI N2(4), convert to Persyst N2(4)
+    % MNI N3(5), convert to Persyst N3(5)
+    
+end
+
+
 function files_list = get_files_list_fr253()
     data_path = "D:/FrLayDatOneHrMax/pat_FR_253/";
     files_list = {...
