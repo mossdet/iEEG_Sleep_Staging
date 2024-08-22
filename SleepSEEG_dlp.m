@@ -1,4 +1,4 @@
-function [Summary,SleepStage]=SleepSEEG_dlp(FileList,ExtraFiles)
+function [Summary,SleepStage]=SleepSEEG_dlp(FileList,ExtraFiles, version)
 
  % [Summary,SleepStage]=SleepSEEG(FileList,ExtraFiles)
  %
@@ -50,8 +50,6 @@ function [Summary,SleepStage]=SleepSEEG_dlp(FileList,ExtraFiles)
 % EEA -exccluding epileptic activity, only channels with IED rate lower
 % than 1 per minute should be included (use Janca's automatic detector  
 % doi: 10.1007/s10548-014-0379-1 to compute the IED rate).
-version='BEA';
-%version='EEA';
 
 % Select night files
 if nargin==0

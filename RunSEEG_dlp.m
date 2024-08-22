@@ -16,11 +16,18 @@ files_list = {'D:\FrLayDatMergedByDay\FR_1096\1096_DEMO_DAY4_FFT_ONLY\1096_day21
 % files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-22_25301102.lay'};
 % files_list = {'D:\FrLayDatMergedByDay\FR_253\2004-03-23_25301102.lay'};
 
-pat_name = 'FR1096_day21_EEA';
+version='BEA';
+%version='EEA';
+
+[filepath,name,ext] = fileparts(files_list{1});
+pat_name = strcat(name, '_', version);
 
 extra_files = 0;
 
-[Summary,SleepStage]=SleepSEEG_dlp(files_list,extra_files);
+[Summary,SleepStage]=SleepSEEG_dlp(files_list,extra_files, version);
+
+persyst_sleep_stages = stages_convert_mni2persyst(SleepStage);
+SleepStage(:,3) = persyst_sleep_stages;
 
 stages_datetimes = datetime(SleepStage(:,2), 'ConvertFrom', 'datenum', 'Format','MM-dd-yy HH:mm:ss');
 staging_results_cell = cat(2, cellstr(stages_datetimes), num2cell(SleepStage(:,3)));
@@ -30,7 +37,7 @@ time_now_str = cellstr(datetime('now','TimeZone','local','Format','dd-MM-yyyy HH
 time_now_str = strrep(time_now_str, '-', '_'); time_now_str = strrep(time_now_str, ':', '_'); time_now_str = strrep(time_now_str, ' ', '__'); time_now_str = time_now_str{1};
 
 
-staging_csv_fn = strcat('Output\', pat_name, '_', 'MNI_ieegSleepStages_', time_now_str, '.csv');
+staging_csv_fn = strcat('Output\', pat_name, '_', 'MNI_ieegSleepStages_Persyst_Coding.csv');
 delete(staging_csv_fn);
 writetable(staging_results_table, staging_csv_fn,'Delimiter',',');
 
@@ -39,11 +46,20 @@ function persyst_sleep_stages = stages_convert_mni2persyst(SleepStage)
     
     %(1 to 5, Stages R, w, N1, N2, N3)
 
-    % MNI REM(1), convert to Persyst REM(1)
-    % MNI Wakefulness(2), convert to Persyst Wakefulness(2)
+    % MNI REM(1), convert to Persyst REM(4)
+    persyst_sleep_stages(SleepStage(:,3)==1) = 4;
+
+    % MNI Wakefulness(2), convert to Persyst Wakefulness(5)
+    persyst_sleep_stages(SleepStage(:,3)==2) = 5;
+
     % MNI N1(3), convert to Persyst N1(3)
-    % MNI N2(4), convert to Persyst N2(4)
-    % MNI N3(5), convert to Persyst N3(5)
+    persyst_sleep_stages(SleepStage(:,3)==3) = 3;
+
+    % MNI N2(4), convert to Persyst N2(2)
+    persyst_sleep_stages(SleepStage(:,3)==4) = 2;
+
+    % MNI N3(5), convert to Persyst N3(1)
+    persyst_sleep_stages(SleepStage(:,3)==5) = 1;
     
 end
 
